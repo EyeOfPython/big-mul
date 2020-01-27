@@ -1,0 +1,37 @@
+contract BigMul() {
+    challenge bigmul(
+        int x1, int x2,  // factor1, each 15-bit
+        int y1, int y2,  // factor2, each 15-bit
+        int x1_y1, // = x1 * y1, 30-bit
+        int x2_y2, // = x2 * y2, 30-bit
+        int x1_y2, // = x1 * y2, 30-bit
+        int x2_y1, // = x2 * y1, 30-bit
+
+        int result0, // 15-bits, lsb
+        int result1, // 15-bits
+        int result2  // 30-bits, msb
+    ) {
+        verify x1_y1 / x1 == y1;
+        verify x1_y1 % x1 == 0;
+        verify x2_y2 / x2 == y2;
+        verify x2_y2 % x2 == 0;
+        verify x1_y2 / y2 == x1;
+        verify x1_y2 % y2 == 0;
+        verify x2_y1 / y1 == x2;
+        verify x2_y1 % y1 == 0;
+
+        int part0 = x2_y2;
+        int bits0 = part0 % 0x8000i;
+        int carry0 = part0 / 0x8000i;
+
+        int part1 = (x1_y2 + x2_y1) + carry0;
+        int bits1 = part1 % 0x8000i;
+        int carry1 = part1 / 0x8000i;
+
+        int part2 = x1_y1 + carry1;
+
+        verify bits0 == result0;
+        verify bits1 == result1;
+        verify part2 == result2;
+    }
+}
